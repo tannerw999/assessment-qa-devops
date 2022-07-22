@@ -6,7 +6,30 @@ const {shuffleArray} = require('./utils')
 
 app.use(express.json())
 
+var Rollbar = require('rollbar')
+var rollbar = new Rollbar({
+  accessToken: 'b1c6d2d90db34e93a880e8cfcdc287ae',
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+})
+
+rollbar.log('Hello world!')
+
+app.get('/', (req, res) => { //This is setting up which end point to hit. / Is goign to be for all homepage endpoints.
+    rollbar.info("Someone loaded up your html!.")
+    res.sendFile(path.join(__dirname, '/public/index.html')) //This is setting up the file path to get to the index.html.  Current directory finding the next file path needed.
+})// __dirname is a keyword that says where is this directory located.
+
+app.get('/styles', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.css'))
+})
+
+app.get('/js', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.js'))
+})
+
 app.get('/api/robots', (req, res) => {
+    rollbar.critical("Someone clicked the broken button!.")
     try {
         res.status(200).send(botsArr)
     } catch (error) {
@@ -28,6 +51,7 @@ app.get('/api/robots/five', (req, res) => {
 })
 
 app.post('/api/duel', (req, res) => {
+    rollbar.info("READY...... FIGHT!.")
     try {
         // getting the duos from the front end
         let {compDuo, playerDuo} = req.body
@@ -59,6 +83,7 @@ app.post('/api/duel', (req, res) => {
 })
 
 app.get('/api/player', (req, res) => {
+    rollbar.critical("I ACTUALLY WON THOUGH")
     try {
         res.status(200).send(playerRecord)
     } catch (error) {
